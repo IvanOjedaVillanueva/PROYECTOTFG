@@ -115,9 +115,9 @@ class usuController {
             const db = client.db('ProyectoBD');
 
             const collection = db.collection('user');
-            const usuario = await collection.find({}).project({ nombre_de_usuario: 1 }).toArray();
+            const usuario = await collection.find({}).project({ contraseña: 0 }).toArray();
             if (usuario.length > 0) {
-                res.status(200).json({ msg: usuario });
+                res.status(200).json(usuario);
             } else {
                 res.status(404).json({ msg: "Error, no hay datos" });
 
@@ -183,19 +183,23 @@ class usuController {
             var nuevoCanal: CanalPrivado = {
                 uuid_canalPrivado: uuidv4(),
                 nombre_de_canal: req.body.nombre_de_canal,
-                usuarios: [uid]
+                usuarios: [uid,req.body.uuid_usuario]
             }
             var trimmed: CanalPrivado = {
                 nombre_de_canal: nuevoCanal.nombre_de_canal,
-                usuarios: [uid]
+                usuarios: [uid,req.body.uuid_usuario]
             };
             Object.keys(nuevoCanal).forEach((key) => {
                 if (nuevoCanal[key] !== undefined) {
                     trimmed[key] = nuevoCanal[key];
                 }
             });
+            console.log(req.body.uuid_usuario)
             const inserted = await collection.insertOne(trimmed);
             const result = await collection2.updateOne({ uuid_usuario: uid }, { $push: { canales: inserted.insertedId } });//CAMBAR CAMPO DE ID
+            if(uid!=req.body.uuid_usuario){
+                const result2 = await collection2.updateOne({ uuid_usuario: req.body.uuid_usuario }, { $push: { canales: inserted.insertedId } });//CAMBAR CAMPO DE ID
+            }
 
             if (result.modifiedCount > 0) {
                 res.status(201).json({ msg: "Canal creado" });
