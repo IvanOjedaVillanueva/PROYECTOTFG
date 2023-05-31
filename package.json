@@ -4,11 +4,12 @@
   "description": "Proyecto de fin de grado de Ivan Ojeda",
   "main": "./dist/app.js",
   "scripts": {
-    "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon -e js,json",
     "build-dev": "tsc --w",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node dist/app.js"
+
   },
   "author": "Ivan Ojeda",
   "license": "ISC",
