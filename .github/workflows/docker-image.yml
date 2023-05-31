@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag proyecto-tfg:latest
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/proyecto-tfg:latest .
       
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
@@ -25,5 +25,4 @@ jobs:
 
     - name: Push the Docker image
       run: |
-        docker tag proyecto-tfg:latest eunpiko/proyecto-tfg:latest
         docker push eunpiko/proyecto-tfg:latest
