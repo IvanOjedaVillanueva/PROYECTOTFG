@@ -17,11 +17,11 @@ EXPOSE 3000
 # Env variables
 ENV JWTKEY key
 ENV KEYSSN key
-ENV PORT_ENV 3000
+ENV PORT 3000
 ENV DBHOST localhost
 ENV DBPORT 27017
 ENV DBUSER root
 ENV DBPASSWORD root
 
 
-CMD ["npm", "start"]
+CMD ["npm", "run start"]
