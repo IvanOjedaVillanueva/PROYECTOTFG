@@ -9,12 +9,12 @@
     "build-dev": "tsc --w",
     "build": "tsc",
     "start": "node dist/app.js"
-
   },
   "author": "Ivan Ojeda",
   "license": "ISC",
   "dependencies": {
     "@angular/cli": "^16.0.2",
+    "@types/node": "^20.2.5",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
