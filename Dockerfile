@@ -24,4 +24,4 @@ ENV DBUSER root
 ENV DBPASSWORD root
 
 
-CMD ["npm", "run start"]
+CMD ["npm", "start"]
