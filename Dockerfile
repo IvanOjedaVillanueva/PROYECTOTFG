@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
+RUN npm install -g npm@9.6.7
 # Install dependences
 RUN npm install
 
