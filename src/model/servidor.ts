@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { Usuario } from "./usuario";
 
 export interface Servidor{
     [key: string]: any;
@@ -7,8 +8,8 @@ export interface Servidor{
     nombre_de_servidor?:string,
     descripcion?:string,
     fecha_de_creacion?:string,
-    usuarios?:ObjectId[],
-    admin?:ObjectId;
+    usuarios?:Usuario[],
+    admin?:Usuario;
 // REFERENCIA A ADMIN USU    id_administrador?:'id_administrador',
 // REFERENCIA A usuarios conectados    id_administrador?:'id_administrador',
 // REFERENCIA A canales -> REFERENCIA Mensajes   id_administrador?:'id_administrador',

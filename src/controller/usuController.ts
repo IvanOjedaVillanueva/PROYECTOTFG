@@ -55,7 +55,10 @@ class usuController {
 
 
                     const resultadoCanales = await queryCanales.findOne({ _id: canalPrivado })
-                    arrayCanales.push({ uuid_canalPrivado: resultadoCanales?.uuid_canalPrivado, nombre_de_canal: resultadoCanales?.nombre_de_canal, usuarios: resultadoCanales?.usuarios });
+                    arrayCanales.push({
+                        uuid_canalPrivado: resultadoCanales?.uuid_canalPrivado, nombre_de_canal: resultadoCanales?.nombre_de_canal, usuarios: resultadoCanales?.usuarios,
+                        mensajes: []
+                    });
 
 
                 }
@@ -79,10 +82,28 @@ class usuController {
             //@ts-ignore
             const uid = req.uid;
             const queryServidores = db.collection('server');
-            const servidores = await queryServidores.find({ usuarios: [uid] }).toArray();
-            console.log();
-            res.status(200).json(servidores);
+            let arrayServidores: Servidor[] = [{
+                uuid_servidor: '',
+                nombre_de_servidor: '',
+                usuarios: [],
+            }];
+            arrayServidores.pop();
+            const servidores = await queryServidores.find({}).toArray();
 
+            // await id_canales.forEach(async (canalPrivado: ObjectId) => {
+            for (const server of servidores) {
+                for (const usuServer of server.usuarios) {//POR CADA USO DE SERVER
+
+                    if (usuServer == uid) {
+
+                        arrayServidores.push(
+                            server
+                        );
+                        break;
+                    }
+                }
+            }
+            res.status(200).json(arrayServidores);
 
         } catch (e) {
             console.error(e)
@@ -183,11 +204,13 @@ class usuController {
             var nuevoCanal: CanalPrivado = {
                 uuid_canalPrivado: uuidv4(),
                 nombre_de_canal: req.body.nombre_de_canal,
-                usuarios: [uid,req.body.uuid_usuario]
+                usuarios: [uid, req.body.uuid_usuario],
+                mensajes: []
             }
             var trimmed: CanalPrivado = {
                 nombre_de_canal: nuevoCanal.nombre_de_canal,
-                usuarios: [uid,req.body.uuid_usuario]
+                usuarios: [uid, req.body.uuid_usuario],
+                mensajes: []
             };
             Object.keys(nuevoCanal).forEach((key) => {
                 if (nuevoCanal[key] !== undefined) {
@@ -195,19 +218,35 @@ class usuController {
                 }
             });
             console.log(req.body.uuid_usuario)
-            const inserted = await collection.insertOne(trimmed);
-            const result = await collection2.updateOne({ uuid_usuario: uid }, { $push: { canales: inserted.insertedId } });//CAMBAR CAMPO DE ID
-            if(uid!=req.body.uuid_usuario){
-                const result2 = await collection2.updateOne({ uuid_usuario: req.body.uuid_usuario }, { $push: { canales: inserted.insertedId } });//CAMBAR CAMPO DE ID
+            const existe = await collection.find({}).toArray();
+            let existeBool: boolean = false
+            for (const canalPrivado of existe) {
+                if (canalPrivado.nombre_de_canal == nuevoCanal.nombre_de_canal) {
+                    existeBool = true;
+                    break;
+                } else {
+                    existeBool = false;
+                }
             }
+            if (!existeBool) {
 
-            if (result.modifiedCount > 0) {
-                res.status(201).json({ msg: "Canal creado" });
+                const inserted = await collection.insertOne(trimmed);
+                const result = await collection2.updateOne({ uuid_usuario: uid }, { $push: { canales: inserted.insertedId } });//CAMBAR CAMPO DE ID
+                if (uid != req.body.uuid_usuario) {
+                    const result2 = await collection2.updateOne({ uuid_usuario: req.body.uuid_usuario }, { $push: { canales: inserted.insertedId } });//CAMBAR CAMPO DE ID
+                }
 
+                if (result.modifiedCount > 0) {
+                    res.status(201).json({ msg: "Canal creado" });
+
+                } else {
+                    res.status(500).json({ msg: "FALLO AL Crear canal" });
+                }
             } else {
-                res.status(500).json({ msg: "FALLO AL Crear canal" });
 
+                res.status(200).json({ msg: "CANAL YA EXISTENTE" });
             }
+
 
         } catch (e) {
             console.error(e)
@@ -269,15 +308,29 @@ class usuController {
             const collection = db.collection('server');
             //@ts-ignore
             const uid = req.uid;
-            const result = await collection.updateOne({ id_servidor: req.body.uuid_servidor }, { $push: { usuarios: uid } });//CAMBAR CAMPO DE ID
+            let existe: boolean = false;
+            const queryComprobar = await collection.findOne({ nombre_de_servidor: req.body.nombre_de_server });
+            for (const usus of queryComprobar?.usuarios) {
+                if (usus.uuid_usuario == uid)
+                    existe = true;
+            }
+            if (!existe) {
+                const result = await collection.updateOne({ nombre_de_servidor: req.body.nombre_de_server }, { $push: { usuarios: uid } });//CAMBAR CAMPO DE ID
 
-            if (result.modifiedCount != 0) {
-                res.status(201).json({ msg: "Se entro en el servidor" });
+                if (result.modifiedCount != 0) {
+                    res.status(201).json({ msg: "Se entro en el servidor" });
 
+                } else {
+                    res.status(500).json({ msg: "FALLO AL entrar en el Servidor" });
+
+                }
             } else {
-                res.status(500).json({ msg: "FALLO AL entrar en el Servidor" });
+                alert("YA ESTA EN ESTE SERVIDOR")
+                res.status(200).json({ msg: "Este usuario ya esta en este servidor" });
 
             }
+
+
 
         } catch (e) {
             console.error(e)
@@ -352,16 +405,16 @@ class usuController {
 
             const collection = db.collection('direct_channel');
             const collection2 = db.collection('user');
-            
+
             //@ts-ignore
             const query = { uuid_canalPrivado: req.params.id_canal };
             const canalquery = await collection.findOne(query);
             for (const usu of canalquery?.usuarios) {
-                const aux = canalquery?._id+"";
-                const queryUsu = await collection2.updateOne({uuid_usuario:usu},{$pull:{canales:canalquery?._id}});//pq no furulaaaa
-                if(queryUsu.modifiedCount!=0){
+                const aux = canalquery?._id + "";
+                const queryUsu = await collection2.updateOne({ uuid_usuario: usu }, { $pull: { canales: canalquery?._id } });//pq no furulaaaa
+                if (queryUsu.modifiedCount != 0) {
                     console.log("ACTUALIZAMOS ALGO");
-                }else{
+                } else {
                     console.log("no actualizamos nose pq probar")
                 }
             }
@@ -380,6 +433,28 @@ class usuController {
         } finally {
             await client.close();
         }
+    }
+    public async getMiCanalPrivado(req: Request, res: Response) {//Metodo para devolver canales privados en los q esta una persona
+        const client: MongoClient = connection();
+        try {
+            const db = client.db('ProyectoBD');
+
+            //res.status(200).json(usuario);
+            const queryCanales = db.collection('direct_channel');
+
+            // await id_canales.forEach(async (canalPrivado: ObjectId) => {
+
+
+            const resultadoCanales = await queryCanales.findOne({ uuid_canalPrivado: req.params.id_canal })
+            if (resultadoCanales != null) {
+                res.status(200).json(resultadoCanales)
+            }
+        } catch (e) {
+            console.error(e)
+            res.status(500).json({ msg: "Error de servidor" });
+        }
+        await client.close();
+
     }
 }
 const usuCon = new usuController();
