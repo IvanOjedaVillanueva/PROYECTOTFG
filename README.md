@@ -12,6 +12,7 @@
  - uuid Para las ids unicas de cada tabla de la base de datos
  - bcrypt Para el guardado de contraseñas encriptadas
  - JWT Para generar tokens de sesión
+ - Socket.io Para las conexiones entre usuarios y crear chat
  
 ## Docker
 Todo el proyecto esta alojado en una máquina de docker la cuál iniciamos de la siguiente manera
