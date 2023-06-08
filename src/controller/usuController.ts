@@ -16,8 +16,10 @@ class usuController {
             const collection = db.collection('user');
             //@ts-ignore
             const uid = req.uid;
+
             const query = { uuid_usuario: uid };
             const usuario = await collection.findOne(query);
+            console.log(usuario)
             res.status(200).json(usuario);
 
         } catch (e) {
@@ -86,6 +88,7 @@ class usuController {
                 uuid_servidor: '',
                 nombre_de_servidor: '',
                 usuarios: [],
+                mensajes:[],
             }];
             arrayServidores.pop();
             const servidores = await queryServidores.find({}).toArray();
@@ -269,12 +272,15 @@ class usuController {
                 uuid_servidor: uuidv4(),
                 nombre_de_servidor: req.body.nombre_de_servidor,
                 usuarios: [uid],
-                admin: uid
+                admin: uid,
+                mensajes:[]
             }
             var trimmed: Servidor = {
                 nombre_de_servidor: nuevoServidor.nombre_de_servidor,
                 usuarios: nuevoServidor.usuarios,
-                admin: nuevoServidor.admin
+                admin: nuevoServidor.admin,
+                mensajes:[]
+
             };
             Object.keys(nuevoServidor).forEach((key) => {
                 if (nuevoServidor[key] !== undefined) {
@@ -448,6 +454,28 @@ class usuController {
             const resultadoCanales = await queryCanales.findOne({ uuid_canalPrivado: req.params.id_canal })
             if (resultadoCanales != null) {
                 res.status(200).json(resultadoCanales)
+            }
+        } catch (e) {
+            console.error(e)
+            res.status(500).json({ msg: "Error de servidor" });
+        }
+        await client.close();
+
+    }
+    public async getMiServidor(req: Request, res: Response) {//Metodo para devolver canales privados en los q esta una persona
+        const client: MongoClient = connection();
+        try {
+            const db = client.db('ProyectoBD');
+
+            //res.status(200).json(usuario);
+            const queryServer = db.collection('server');
+
+            // await id_canales.forEach(async (canalPrivado: ObjectId) => {
+
+
+            const resultadoServidor = await queryServer.findOne({ uuid_servidor: req.params.id_servidor })
+            if (resultadoServidor != null) {
+                res.status(200).json(resultadoServidor)
             }
         } catch (e) {
             console.error(e)

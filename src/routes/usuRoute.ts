@@ -13,6 +13,8 @@ class usuRoute{
         this.router.get("/yo/servidores",auth,usuController.getMiServidores);
 
         this.router.get("/yo/canal/:id_canal",auth,usuController.getMiCanalPrivado)
+        this.router.get("/yo/servidor/:id_servidor",auth,usuController.getMiServidor)
+
         this.router.get("/:id_usu",usuController.getUsuario);
         this.router.get("/",usuController.getAllUsuarios);
         this.router.post("/",usuController.insertUsuario);

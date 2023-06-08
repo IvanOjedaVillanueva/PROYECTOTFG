@@ -15,9 +15,10 @@ import { MongoClient } from 'mongodb';
 import connection from "./database/database";
 import { CanalPrivado } from './model/canalPrivado';
 import { Usuario } from './model/usuario';
+import { Servidor } from './model/servidor';
 
 
-class Servidor {
+class ServidorPrincipal {
   private app: Application;
   private servidorSocket: any;
   private io!: Server;
@@ -144,6 +145,58 @@ class Servidor {
 
 
       });
+      socket.on('enviarMensajeServer', async (data: any) => {
+        console.log(data, "\n\n")
+        const dataFormated = JSON.parse(data);
+        console.log("Mensaje enviado:", dataFormated.msg);
+        const client: MongoClient = connection();
+        let uid: string = "";
+        jwt.verify(String(token), String(process.env.JWTKEY), (err, decod) => {
+          if (err) {
+            console.log("Error usuario no autenticado")
+          } else if (typeof (decod) !== 'string') {
+            console.log("SI FUNCIONA")
+            uid = decod?.uid;
+          }
+        })
+        try {
+          const db = client.db('ProyectoBD');
+
+          const collection = db.collection('server');
+          const collection2 = db.collection('user');
+
+          var trimmed: Servidor = dataFormated.server;
+          Object.keys(dataFormated.server).forEach((key) => {
+            if (dataFormated.server[key] !== undefined) {
+              trimmed[key] = dataFormated.server[key];
+            }
+          });
+          
+          const usuario = await collection2.findOne({ uuid_usuario: uid });
+
+          //NO SE SACAR EL AUTOR DEL TOQUEN OTRA VEZ
+          const result = await collection.updateOne({ uuid_servidor: dataFormated.server.uuid_servidor }, { $push: { mensajes: { usuario_enviador: { uuid_usuario: uid, nombre_de_usuario: usuario?.nombre_de_usuario }, mensaje: dataFormated.msg } } })
+          console.log(result);
+          this.clientes.forEach(cliente => {
+            dataFormated.server.usuarios.forEach((usuarioServer: string) => {
+              if (cliente.uuid_usuario == usuarioServer && usuarioServer != usuario?.uuid_usuario) {
+                //ENVIAR EL MENSAJE
+                console.log(usuarioServer,"HOLAAAA");
+                cliente.socket.emit('enviarMensajeServer', JSON.stringify({ msg: dataFormated.msg, sender: usuario }))
+              }
+            });
+          });
+        } catch (e) {
+          console.error(e)
+        } finally {
+
+          await client.close();
+
+        }
+        ////////////////////////////////////////////////HASTA AHI PARA METER EL MENSAJE NUEVO EN SU CANAL, AHORA PARA ENVIAR A LOS Q LO TIENEN Q RECIBIR
+
+
+      });
 
 
 
@@ -178,5 +231,5 @@ class Servidor {
   }
 }
 
-let servidor = new Servidor()
+let servidor = new ServidorPrincipal()
 servidor.start()
