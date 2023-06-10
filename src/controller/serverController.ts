@@ -9,11 +9,10 @@ class serverController {
         const client: MongoClient = connection();
         try {
             const db = client.db('ProyectoBD');
-
             const collection = db.collection('server');
             //@ts-ignore
             const uid = req.uid;
-            const query = { admin : uid }; 
+            const query = { admin : uid };
             const server = await collection.find(query).toArray();
             res.status(200).json(server);
 

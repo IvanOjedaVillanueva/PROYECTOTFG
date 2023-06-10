@@ -16,6 +16,8 @@ import connection from "./database/database";
 import { CanalPrivado } from './model/canalPrivado';
 import { Usuario } from './model/usuario';
 import { Servidor } from './model/servidor';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
 
 class ServidorPrincipal {
@@ -48,6 +50,11 @@ class ServidorPrincipal {
   }
   config() {
     this.app.set("port", process.env.PORT || 3000)
+    
+    const swaggerDocument = YAML.load('./swagger.yaml');
+
+    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
     this.app.set("socketport", process.env.SOCKET_PORT || 2999)
     this.app.use(cors());
     this.app.use(express.json());

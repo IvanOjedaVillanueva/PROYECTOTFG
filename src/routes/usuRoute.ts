@@ -17,13 +17,14 @@ class usuRoute{
 
         this.router.get("/:id_usu",usuController.getUsuario);
         this.router.get("/",usuController.getAllUsuarios);
+
         this.router.post("/",usuController.insertUsuario);
         this.router.post("/canalPrivado",auth,usuController.crearCanalPrivado);
         
         this.router.put("/",auth,usuController.entrarServidor);
+        // this.router.put("/:id_usu",usuController.updateUsuario);
 
-        this.router.delete("/:id_usu",usuController.deleteUsuario);
-        this.router.put("/:id_usu",usuController.updateUsuario);
+        // this.router.delete("/:id_usu",usuController.deleteUsuario);
         this.router.delete("/yo/borrarCanal/:id_canal",auth,usuController.borrarMiCanal);
 
 

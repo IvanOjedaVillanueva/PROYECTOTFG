@@ -1,0 +1,370 @@
+openapi: 3.0.3
+info:
+  title: RUTAS APIREST
+  description: |-
+       Este es el documento de rutas de la aplicacion, donde se ven sus usos y llamadas
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: eunpico@gmail.com
+  version: 1.0.1
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: https://localhost:4200
+paths:
+  /usuario/yo/info:
+    get:
+      tags:
+        - usuario
+      summary: Devuelve información del usuario
+      description: Devuelve el objeto de usuario del usuario conectado
+      operationId: getMiUsuario
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'          
+        '500':
+          description: "Error de servidor"
+  /usuario/yo/canales:
+    get:
+      tags:
+        - usuario
+      summary: Devuelve información del canal
+      description: Devuelve la lista de canales en los que esta el usuario
+      operationId: getMiCanalesPrivados
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Canales'      
+        '401':
+          description: "Usuario no encontrado"
+        '500':
+          description: "Error de servidor"
+  /usuario/yo/servidores:
+    get:
+      tags:
+        - usuario
+      summary: Devuelve informacion de servidores
+      description: Devuelve informacion de los servidores en los que esta el usuario
+      operationId: getMiServidores
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Servidor'          
+        '500':
+          description: Error de servidor
+  /usuario/yo/canal/{id_canal} :
+    get:
+      tags:
+        - usuario
+      summary: Devuelve canal
+      description: Devuelve canal seleccionado
+      operationId: getMiCanalPrivado
+      parameters:
+        - name: id_canal
+          in: path
+          description: Tags to filter by
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Canales'          
+        '500':
+          description: Error de servidor
+  /usuario/yo/servidor/{id_servidor}:
+    get:
+      tags:
+        - usuario
+      summary: Devuelve un solo servidor
+      description: Devuelve el servidor seleccionado
+      operationId: getMiServidor
+      parameters:
+        - name: id_servidor
+          in: path
+          description: UUID del servidor
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Servidor'
+        '500':
+          description: Error de servidor
+  /usuario/{id_usu}:
+    get:
+      tags:
+        - usuario
+      summary: Devuelve un solo usuario
+      description: Devuelve el usuario seleccionado
+      operationId: getUsuario
+      parameters:
+        - name: id_usu
+          in: path
+          description: UUID del usuario
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+        '500':
+          description: Error de servidor
+  /usuario/:
+    get:
+      tags:
+        - usuario
+      summary: Devuelve todos los usuarios
+      description: Devuelve todos los usuarios
+      operationId: getAllUsuarios
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Usuario'
+        '404':
+          description: "Error, no hay datos"
+        '500':
+          description: Error de servidor
+    post:
+      tags:
+        - usuario
+      summary: Inserta un usuario
+      description: Inserta un usuario en la base de datos
+      operationId: insertUsuario
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '201':
+          description: successful operation
+        '500':
+          description: Error de servidor
+    put:
+      tags:
+        - usuario
+      summary: Entrada a servidor
+      description: Inserta un usuario en un servidor
+      operationId: entrarServidor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '201':
+          description: successful operation
+        '200':
+          description: Usuario ya existente en el servidor
+        '500':
+          description: Error de servidor
+  /usuario/canalPrivado:
+    post:
+      tags:
+        - usuario
+      summary: Inserta un canal
+      description: Inserta un canal en la base de datos
+      operationId: crearCanalPrivado
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Canales'
+      responses:
+        '201':
+          description: successful operation
+        '200':
+          description: Canal ya existente
+        '500':
+          description: Fallo al crear canal
+  /usuario/yo/borrarCanal/{id_canal}:
+     delete:
+      tags:
+        - usuario
+      summary: Borrar canal
+      description: Borrar el canal seleccionado
+      operationId: borrarMiCanal
+      parameters:
+        - name: id_canal
+          in: path
+          description: El canal a borrar
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Canal Borrado
+        '404':
+          description: No se pudo encontrar el canal a borrar
+  /login/:
+    post:
+      tags:
+        - login
+      summary: Loguea a un usuario
+      description: Crea el token del usuario que se loguea
+      operationId: loginUsu
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: Usuario o contrasenia invalidos
+        '500':
+          description: Error de servidor
+        
+  /server/yo/crearServidor:
+    post:
+      tags:
+        - Servidor
+      summary: Crea un servidor
+      description: Servidor Creado
+      operationId: crearMiServidor
+      responses:
+        '201':
+          description: successful operation
+        '500':
+          description: Servidor creado
+  /server/yo/borrarServidor/{id_servidor}:
+    delete:
+      tags:
+        - Servidor
+      summary: Borrar servidor
+      description: Borrar el servidor seleccionado
+      operationId: borrarMiServidor
+      parameters:
+        - name: id_servidor
+          in: path
+          description: El servidor a borrar
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: servidor Borrado
+        '500':
+          description: No se pudo encontrar el servidor a borrar
+components:
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        uuid_usuario:
+          type: string
+          format: string
+          example: "102847210846"
+        foto_perfil:
+          type: string
+          format: string
+          example: ""
+        nombre_de_usuario:
+          type: string
+          format: string
+          example: "MONDONGUERO"
+        correo_electronico:
+          type: string
+          format: string
+          example: "MIKO@gmail.com"
+        contraseña:
+          type: string
+          format: string
+          example: "******"
+        ultima_conexion:
+          type: string
+          format: string
+          example: "ahora"
+        estado:
+          type: string
+          format: string
+          example: "MIKO@gmail.com"
+    Canales:
+      type: object
+      properties:
+        uuid_canalPrivado:
+          type: string
+          format: string
+          example: "102847210846"
+        nombre_de_canal:
+          type: string
+          format: string
+          example: "MINDUNDI"
+        usuarios:
+          type: array
+          items:
+          $ref: '#/components/schemas/Usuario'
+        mensajes:
+          type: array
+          items:
+          $ref: '#/components/schemas/Mensaje'
+    Mensaje:
+      type: object
+      properties:
+        usuario_enviador:
+          $ref: '#/components/schemas/Usuario'
+        mensaje:
+          type: string
+          format: string
+          example: "olawenodia"
+    Servidor:
+      type: object
+      properties:
+        uuid_servidor:
+          type: string
+          format: string
+          example: "102847210846"
+        imagen_de_servidor:
+          type: string
+          format: string
+          example: ""
+        nombre_de_servidor:
+          type: string
+          format: string
+          example: "DEIDADES"
+        descripcion:
+          type: string
+          format: string
+          example: "Servidor cosas"
+        fecha_de_creacion:
+          type: string
+          format: string
+          example: "******"
+        usuarios:
+          type: array
+          items:
+              $ref: '#/components/schemas/Usuario'        
+        admin:
+          $ref: '#/components/schemas/Usuario'        
+        mensajes:
+          type: array
+          items:
+              $ref: '#/components/schemas/Mensaje'
